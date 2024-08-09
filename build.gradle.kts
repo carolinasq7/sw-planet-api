@@ -8,6 +8,7 @@ plugins {
 	kotlin("jvm") version "1.9.24"
 	kotlin("plugin.spring") version "1.9.24"
 	kotlin("plugin.noarg") version "1.9.24"
+	jacoco
 	}
 
 group = "com.carolcursos"
@@ -26,10 +27,16 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	implementation("org.apache.commons:commons-lang3:3.12.0")
+
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
+
 	runtimeOnly("com.mysql:mysql-connector-j")
+
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+	testImplementation("io.mockk:mockk:1.13.12")
+
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

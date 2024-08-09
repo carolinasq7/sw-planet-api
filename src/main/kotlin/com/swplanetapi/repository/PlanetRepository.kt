@@ -3,4 +3,6 @@ package com.swplanetapi.repository
 import com.swplanetapi.models.PlanetModel
 import org.springframework.data.repository.CrudRepository
 
-interface PlanetRepository : CrudRepository<PlanetModel, Long>
+interface PlanetRepository : CrudRepository<PlanetModel, Long> {
+    fun existsByName(name: String): Boolean
+}

@@ -1,4 +1,4 @@
-package com.carolcursos.sw_planet_api
+package com.swplanetapi
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
