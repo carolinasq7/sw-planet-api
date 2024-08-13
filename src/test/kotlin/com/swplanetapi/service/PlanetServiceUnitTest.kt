@@ -2,6 +2,7 @@ package com.swplanetapi.service
 
 import com.swplanetapi.helper.buildPlanet
 import com.swplanetapi.helper.buildPlanetInvalid
+import com.swplanetapi.models.PlanetModel
 import com.swplanetapi.repository.PlanetRepository
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -10,11 +11,13 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
@@ -60,8 +63,6 @@ class PlanetServiceUnitTest {
     fun `Should return ok and planet when id from a planet exists`() {
         val planet = buildPlanet()
 
-        every { planetRepository.existsByName(planet.name) } returns true
-        every { planetRepository.save(planet) } returns planet
         every { planetRepository.findById(planet.id) } returns Optional.of(planet)
 
         val responseGetId = planetService.findById(planet.id)
@@ -90,16 +91,14 @@ class PlanetServiceUnitTest {
         val pageable = mockk<Pageable>()
         val planetsPage = PageImpl(listOf(planet))
 
-        every { planetRepository.existsByName(planet.name) } returns true
-        every { planetRepository.save(planet) } returns planet
         every { planetRepository.findByNameContaining(planet.name, pageable) } returns planetsPage
 
-        val returnClimate = planetService.getAllPlanets(planet.name, pageable)
-        val planetList = returnClimate.toList()
+        val returnPlanet = planetService.getAllPlanets(planet.name, pageable)
+        val planetList = returnPlanet.toList()
 
         assertEquals(1, planetList.size)
-        assertEquals(planet.name, returnClimate.first().name)
-        assertEquals(planet, returnClimate.first())
+        assertEquals(planet.name, returnPlanet.first().name)
+        assertEquals(planet, returnPlanet.first())
 
         verify { planetRepository.findByNameContaining(planet.name, pageable) }
 
@@ -140,5 +139,40 @@ class PlanetServiceUnitTest {
 
         verify { planetRepository.findAll(pageable) }
 
+    }
+
+    @Test
+    fun `Should return ok and planet when a planet is filtered by an existing climate and terrain`() {
+        val planet = buildPlanet(climate = "climate test", terrain = "terrain test")
+        val pageable = mockk<Pageable>()
+        val planetsPage = PageImpl(listOf(planet))
+
+        every { planetRepository.findByClimateOrTerrain(planet.climate, planet.terrain, pageable) } returns planetsPage
+
+        val returnFiltered = planetService.filterByClimateOrTerrain(planet.climate, planet.terrain, pageable)
+
+        val planetList = (returnFiltered as Page<PlanetModel>).content
+
+        assertEquals(1, planetList.size)
+        assertEquals(planet, planetList[0])
+
+        verify { planetRepository.findByClimateOrTerrain("climate test", "terrain test", pageable) }
+    }
+
+    @Test
+    fun `Should return ok and an empty list when no matching planets are found for the given filters`() {
+        val climate = "non-existent climate"
+        val terrain = "non-existent terrain"
+        val pageable: Pageable = PageRequest.of(0, 10)
+
+        every { planetRepository.findByClimateOrTerrain(climate, terrain, pageable) } returns Page.empty<PlanetModel>()
+
+        val returnFiltered = planetService.filterByClimateOrTerrain(climate, terrain, pageable)
+
+        val planetList = (returnFiltered as Page<PlanetModel>).content
+
+        assertEquals(0, planetList.size)
+
+        verify { planetRepository.findByClimateOrTerrain(climate, terrain, pageable) }
     }
 }

@@ -42,4 +42,15 @@ class PlanetService(
             planetRepository.findAll(pageable)
         }
     }
+
+    fun filterByClimateOrTerrain(climate: String?, terrain: String?, pageable: Pageable): Page<PlanetModel> {
+        return if (climate != null && terrain != null) {
+            val planets = planetRepository.findByClimateOrTerrain(climate, terrain, pageable)
+            if (planets.isEmpty) {
+                Page.empty(pageable)
+            } else
+            planets
+        } else
+            planetRepository.findAll(pageable)
+    }
 }

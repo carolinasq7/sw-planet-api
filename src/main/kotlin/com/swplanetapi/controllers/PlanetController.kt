@@ -44,4 +44,18 @@ class PlanetController(
         }
     }
 
+    @GetMapping("/filter")
+    fun getClimateOrTerrain(
+        @RequestParam(name = "climate", required = false) climate: String?,
+        @RequestParam(name = "terrain", required = false) terrain: String?,
+        @PageableDefault(page= 0, size = 10) pageable: Pageable
+    ): ResponseEntity<Page<PlanetModel>> {
+        val planets = planetService.filterByClimateOrTerrain(climate, terrain, pageable)
+        return if (planets.isEmpty) {
+            ResponseEntity.noContent().build()
+        } else {
+            ResponseEntity.ok(planets)
+        }
+    }
+
 }
