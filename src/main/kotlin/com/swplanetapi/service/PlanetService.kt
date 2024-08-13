@@ -1,6 +1,5 @@
 package com.swplanetapi.service
 
-import com.swplanetapi.exception.GlobalExceptionHandler
 import com.swplanetapi.models.PlanetModel
 import com.swplanetapi.repository.PlanetRepository
 import org.springframework.data.domain.Page
@@ -16,6 +15,10 @@ class PlanetService(
     private val planetRepository: PlanetRepository
 ) {
     fun create(planet: PlanetModel): ResponseEntity<PlanetModel> {
+        if (planet.name.isBlank() || planet.climate.isBlank() || planet.terrain.isBlank()) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid data: All fields must be provided.")
+        }
+
         if (planetRepository.existsByName(planet.name)) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Planet with name '${planet.name}' already exists.")
         }

@@ -1,9 +1,7 @@
 package com.swplanetapi.helper
 
 import com.swplanetapi.models.PlanetModel
-import net.bytebuddy.utility.RandomString
-import java.util.UUID
-import kotlin.random.Random
+import java.util.*
 
 fun buildPlanet(
     id: Long = 0,

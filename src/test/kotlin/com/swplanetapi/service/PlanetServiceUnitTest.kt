@@ -2,7 +2,6 @@ package com.swplanetapi.service
 
 import com.swplanetapi.helper.buildPlanet
 import com.swplanetapi.helper.buildPlanetInvalid
-import com.swplanetapi.models.PlanetModel
 import com.swplanetapi.repository.PlanetRepository
 import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs
@@ -74,7 +73,7 @@ class PlanetServiceUnitTest {
 
         every { planetRepository.findById(id) } returns Optional.empty()
 
-        val error = assertThrows<ResponseStatusException>() {
+        val error = assertThrows<ResponseStatusException> {
             planetService.findById(id)
         }
 
@@ -108,7 +107,7 @@ class PlanetServiceUnitTest {
 
         every { planetRepository.findByNameContaining(name, pageable) } returns Page.empty()
 
-        val error = assertThrows<ResponseStatusException>() {
+        val error = assertThrows<ResponseStatusException> {
             planetService.getAllPlanets(name, pageable)
         }
 
@@ -148,7 +147,7 @@ class PlanetServiceUnitTest {
 
         val returnFiltered = planetService.filterByClimateOrTerrain(planet.climate, planet.terrain, pageable)
 
-        val planetList = (returnFiltered as Page<PlanetModel>).content
+        val planetList = (returnFiltered).content
 
         assertEquals(1, planetList.size)
         assertEquals(planet, planetList[0])
@@ -162,11 +161,11 @@ class PlanetServiceUnitTest {
         val terrain = "non-existent terrain"
         val pageable: Pageable = PageRequest.of(0, 10)
 
-        every { planetRepository.findByClimateOrTerrain(climate, terrain, pageable) } returns Page.empty<PlanetModel>()
+        every { planetRepository.findByClimateOrTerrain(climate, terrain, pageable) } returns Page.empty()
 
         val returnFiltered = planetService.filterByClimateOrTerrain(climate, terrain, pageable)
 
-        val planetList = (returnFiltered as Page<PlanetModel>).content
+        val planetList = (returnFiltered).content
 
         assertEquals(0, planetList.size)
 

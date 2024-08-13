@@ -1,15 +1,17 @@
-package com.swplanetapi.service
+package com.swplanetapi.repository
 
 import com.swplanetapi.helper.buildPlanet
-import com.swplanetapi.repository.PlanetRepository
-import org.junit.jupiter.api.Assertions.*
+import com.swplanetapi.helper.buildPlanetInvalid
+import com.swplanetapi.service.PlanetService
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
-import org.junit.jupiter.api.assertThrows
 
 @SpringBootTest
 class PlanetServiceComponentTest {
@@ -25,11 +27,27 @@ class PlanetServiceComponentTest {
     }
 
     @Test
-    fun`Create planet with valid data`() {
+    fun `Create planet with valid data`() {
         val planet = buildPlanet()
-        val response = planetService.create(planet)
+        val savedPlanet = planetRepository.save(planet)
+        val findPlanetCreated = planetRepository.findById(savedPlanet.id)
 
-        assertEquals(response.statusCode, HttpStatus.CREATED)
+        assertNotNull(findPlanetCreated)
+        assertEquals(planet.name, findPlanetCreated.get().name)
+        assertEquals(planet.climate, findPlanetCreated.get().climate)
+        assertEquals(planet.terrain, findPlanetCreated.get().terrain)
+    }
+
+    @Test
+    fun `Should return incorrect request when invalid data is provided to create planet`() {
+        val planetInvalid = buildPlanetInvalid()
+
+        val exception = assertThrows<ResponseStatusException> {
+            planetService.create(planetInvalid)
+        }
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.statusCode)
+        assertEquals("Invalid data: All fields must be provided.", exception.reason)
     }
 
     @Test
