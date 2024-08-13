@@ -1,9 +1,9 @@
 package com.swplanetapi.service
 
-import com.swplanetapi.exception.PlanetAlreadyExistsException
 import com.swplanetapi.models.PlanetModel
 import com.swplanetapi.repository.PlanetRepository
-import org.springframework.data.crossstore.ChangeSetPersister
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
@@ -29,5 +29,17 @@ class PlanetService(
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Planet with id [${id}] not exists.")
         }
        return planet
+    }
+
+    fun getAllPlanets(name: String?, pageable: Pageable): Page<PlanetModel> {
+        return if (name != null) {
+            val planets = planetRepository.findByNameContaining(name, pageable)
+            if (planets.isEmpty) {
+                throw ResponseStatusException(HttpStatus.NOT_FOUND, "No planets found with the name '$name'.")
+            }
+            planets
+        } else {
+            planetRepository.findAll(pageable)
+        }
     }
 }
