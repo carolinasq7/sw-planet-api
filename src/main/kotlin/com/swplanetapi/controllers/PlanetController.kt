@@ -58,4 +58,9 @@ class PlanetController(
         }
     }
 
+    @DeleteMapping("/{id}")
+    fun delete (@PathVariable id: Long) {
+        planetService.delete(id)
+    }
+
 }

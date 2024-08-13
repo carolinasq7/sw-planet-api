@@ -1,5 +1,6 @@
 package com.swplanetapi.service
 
+import com.swplanetapi.exception.GlobalExceptionHandler
 import com.swplanetapi.models.PlanetModel
 import com.swplanetapi.repository.PlanetRepository
 import org.springframework.data.domain.Page
@@ -52,5 +53,12 @@ class PlanetService(
             planets
         } else
             planetRepository.findAll(pageable)
+    }
+
+    fun delete(id: Long) {
+        if (!planetRepository.existsById(id)){
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Planet with id [${id}] not exists.")
+        }
+        planetRepository.deleteById(id)
     }
 }

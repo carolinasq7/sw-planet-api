@@ -4,14 +4,11 @@ import com.swplanetapi.helper.buildPlanet
 import com.swplanetapi.helper.buildPlanetInvalid
 import com.swplanetapi.models.PlanetModel
 import com.swplanetapi.repository.PlanetRepository
-import io.mockk.every
+import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockk
-import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
@@ -174,5 +171,36 @@ class PlanetServiceUnitTest {
         assertEquals(0, planetList.size)
 
         verify { planetRepository.findByClimateOrTerrain(climate, terrain, pageable) }
+    }
+
+    @Test
+    fun `Should delete a planet when it exists`() {
+        val id = Random.nextLong()
+        val planet = buildPlanet(id = id)
+
+        every { planetRepository.existsById(id) } returns true
+        every { planetRepository.deleteById(id) } just runs
+
+        planetService.delete(planet.id)
+
+        verify { planetRepository.existsById(planet.id) }
+        verify { planetRepository.deleteById(planet.id) }
+
+    }
+
+    @Test
+    fun `Should throw not found exception when trying to delete a non-existent planet`() {
+        val id = 1L
+        every { planetRepository.existsById(id) } returns false
+
+        val exception = assertThrows<ResponseStatusException> {
+            planetService.delete(id)
+        }
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.statusCode)
+        assertEquals("Planet with id [${id}] not exists.", exception.reason)
+
+        verify { planetRepository.existsById(id) }
+        verify(exactly = 0) { planetRepository.deleteById(id) }
     }
 }
