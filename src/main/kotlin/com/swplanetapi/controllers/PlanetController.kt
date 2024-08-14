@@ -4,6 +4,7 @@ import com.swplanetapi.controllers.request.PostPlanetRequest
 import com.swplanetapi.extension.toPlanetModel
 import com.swplanetapi.models.PlanetModel
 import com.swplanetapi.service.PlanetService
+import jakarta.validation.Valid
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
@@ -17,9 +18,8 @@ class PlanetController(
     private val planetService: PlanetService
 ) {
     @PostMapping
-    fun create(@RequestBody request: PostPlanetRequest) : ResponseEntity<PlanetModel> {
+    fun create(@RequestBody @Valid request: PostPlanetRequest) : ResponseEntity<PlanetModel> {
         val planet = PlanetModel(
-            id = 0,
             name = request.name,
             climate = request.climate,
             terrain = request.terrain

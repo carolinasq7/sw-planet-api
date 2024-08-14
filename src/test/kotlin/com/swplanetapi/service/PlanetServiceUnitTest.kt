@@ -48,20 +48,21 @@ class PlanetServiceUnitTest {
         every { planetRepository.existsByName(planetInvalid.name) } returns false
         every { planetRepository.save(planetInvalid) } throws RuntimeException("Invalid data")
 
-        val exception = assertThrows<RuntimeException> {
+        val exception = assertThrows<ResponseStatusException> {
             planetService.create(planetInvalid)
         }
 
-        assertEquals("Invalid data", exception.message)
+        assertEquals(HttpStatus.BAD_REQUEST, exception.statusCode)
+        assertEquals("Invalid data: All fields must be provided.", exception.reason)
     }
 
     @Test
     fun `Should return ok and planet when id from a planet exists`() {
         val planet = buildPlanet()
 
-        every { planetRepository.findById(planet.id) } returns Optional.of(planet)
+        every { planetRepository.findById(planet.id!!) } returns Optional.of(planet)
 
-        val responseGetId = planetService.findById(planet.id)
+        val responseGetId = planetService.findById(planet.id!!)
 
         assertEquals(planet, responseGetId.get())
 
@@ -180,10 +181,10 @@ class PlanetServiceUnitTest {
         every { planetRepository.existsById(id) } returns true
         every { planetRepository.deleteById(id) } just runs
 
-        planetService.delete(planet.id)
+        planetService.delete(planet.id!!)
 
-        verify { planetRepository.existsById(planet.id) }
-        verify { planetRepository.deleteById(planet.id) }
+        verify { planetRepository.existsById(planet.id!!) }
+        verify { planetRepository.deleteById(planet.id!!) }
 
     }
 

@@ -18,4 +18,5 @@ class GlobalExceptionHandler {
     fun notFoundException(ex: NotFoundException): ResponseEntity <String> {
         return ResponseEntity(ex.message, HttpStatus.NOT_FOUND)
     }
+
 }

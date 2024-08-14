@@ -30,7 +30,7 @@ class PlanetServiceComponentTest {
     fun `Create planet with valid data`() {
         val planet = buildPlanet()
         val savedPlanet = planetRepository.save(planet)
-        val findPlanetCreated = planetRepository.findById(savedPlanet.id)
+        val findPlanetCreated = planetRepository.findById(savedPlanet.id!!)
 
         assertNotNull(findPlanetCreated)
         assertEquals(planet.name, findPlanetCreated.get().name)

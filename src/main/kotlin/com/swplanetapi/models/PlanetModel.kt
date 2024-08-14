@@ -10,7 +10,7 @@ import jakarta.persistence.Id
 data class PlanetModel (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = 0,
+    var id: Long? = null,
 
     @Column
     var name: String,
