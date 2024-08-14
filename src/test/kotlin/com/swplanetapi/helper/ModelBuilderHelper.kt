@@ -16,7 +16,7 @@ fun buildPlanet(
 )
 
 fun buildPlanetInvalid(
-    id: Long = 0,
+    id: Long? = 0,
 ) = PlanetModel (
     id = id,
     name = "",

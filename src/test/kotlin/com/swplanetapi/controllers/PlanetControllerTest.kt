@@ -4,18 +4,30 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.swplanetapi.helper.buildPlanet
 import com.swplanetapi.helper.buildPlanetInvalid
 import com.swplanetapi.repository.PlanetRepository
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.web.server.ResponseStatusException
+import kotlin.random.Random
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -30,6 +42,11 @@ class PlanetControllerTest {
 
     @Autowired
     private lateinit var objectMapper: ObjectMapper
+
+    @BeforeEach
+    fun setUp() {
+        planetRepository.deleteAll()
+    }
 
     @Test
     fun `Should return created when valid data is provided`() {
@@ -79,5 +96,94 @@ class PlanetControllerTest {
 
         val resolvedException = result.resolvedException as ResponseStatusException
         assertEquals("Planet with name '${planet.name}' already exists.", resolvedException.reason)
+    }
+
+    @Test
+    fun `Should return ok and planet when id from a planet exists`() {
+        val planet = planetRepository.save(buildPlanet(id = 20))
+        val id = planet.id
+
+        mockMvc.perform(get("/planets/${id}").contentType("application/json"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").exists())
+            .andExpect(jsonPath("$.name").value(planet.name))
+            .andExpect(jsonPath("$.climate").value(planet.climate))
+            .andExpect(jsonPath("$.terrain").value(planet.terrain))
+
+    }
+
+    @Test
+    fun `Should return not found when id from a planet if not exists`() {
+        val id = Random.nextInt().toLong()
+
+        val result = mockMvc.perform(get("/planets/${id}").contentType("application/json"))
+            .andExpect(status().isNotFound)
+            .andReturn()
+
+        val exception = result.resolvedException as ResponseStatusException
+        assertEquals("Planet with id [${id}] not exists.", exception.reason)
+    }
+
+    @Test
+    fun `Should return ok and planet when name from a planet exists`() {
+        val planet = planetRepository.save(buildPlanet(name = "test name"))
+
+        mockMvc.perform(get("/planets?name=test name"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.content[0].name").value(planet.name))
+            .andExpect(jsonPath("$.content[0].climate").value(planet.climate))
+            .andExpect(jsonPath("$.content[0].terrain").value(planet.terrain))
+    }
+
+    @Test
+    fun `Should return bad request when there is no planet with the name entered`() {
+
+        val result = mockMvc.perform(get("/planets?name=Invalid"))
+            .andExpect(status().isNotFound)
+            .andReturn()
+
+        val resolvedException = result.resolvedException as ResponseStatusException
+        assertEquals("No planets found with the name 'Invalid'.", resolvedException.reason)
+    }
+
+    /////// AQUIIIII
+
+    @Test
+    fun `Should return ok and planets when filters are provided`() {
+
+        val planet = planetRepository.save(buildPlanet(climate = "test climate", terrain = "test terrain"))
+
+        mockMvc.perform(get("/planets/filter?climate=test climate&terrain=test terrain"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.content[0].climate").value(planet.climate))
+            .andExpect(jsonPath("$.content[0].terrain").value(planet.terrain))
+    }
+
+    @Test
+    fun `Should return ok and an empty list when no matching planets are found for the given filters`() {
+
+        mockMvc.perform(get("/planets/filter?climate=xpto"))
+            .andExpect(status().isNoContent)
+    }
+
+    @Test
+    fun `Should delete a planet when it exists`() {
+        val planet = planetRepository.save(buildPlanet(id = 1L))
+        val id = planet.id
+
+        mockMvc.perform(delete("/planets/${id}"))
+            .andExpect(status().isOk)
+    }
+
+    @Test
+    fun `Should throw not found exception when trying to delete a non-existent planet`() {
+        val id = Random.nextInt().toLong()
+
+        val result = mockMvc.perform(delete("/planets/${id}"))
+            .andExpect(status().isNotFound)
+            .andReturn()
+
+        val resolvedException = result.resolvedException as ResponseStatusException
+        assertEquals("Planet with id [${id}] not exists.", resolvedException.reason)
     }
 }

@@ -1,6 +1,6 @@
-CREATE TABLE planet(
-    id int auto_increment primary key,
-    name varchar(255) not null,
-    climate varchar(255) not null,
-    terrain varchar(255) not null
+CREATE TABLE planet (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    climate VARCHAR(255),
+    terrain VARCHAR(255)
 );
