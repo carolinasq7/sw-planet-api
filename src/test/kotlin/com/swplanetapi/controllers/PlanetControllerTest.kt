@@ -146,7 +146,15 @@ class PlanetControllerTest {
         assertEquals("No planets found with the name 'Invalid'.", resolvedException.reason)
     }
 
-    /////// AQUIIIII
+    @Test
+    fun `Should return ok and all planets when no filters are provided`() {
+
+        val planet = planetRepository.save(buildPlanet())
+
+        mockMvc.perform(get("/planets/filter?"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.content").isArray)
+    }
 
     @Test
     fun `Should return ok and planets when filters are provided`() {
