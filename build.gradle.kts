@@ -28,6 +28,8 @@ dependencies {
 	implementation("org.apache.commons:commons-lang3:3.12.0")
 	implementation("jakarta.validation:jakarta.validation-api:3.0.0")
 	implementation("org.hibernate.validator:hibernate-validator:6.2.0.Final")
+	implementation("org.springframework.hateoas:spring-hateoas")
+
 
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 

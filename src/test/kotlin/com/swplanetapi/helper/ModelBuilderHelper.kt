@@ -2,9 +2,10 @@ package com.swplanetapi.helper
 
 import com.swplanetapi.models.PlanetModel
 import java.util.*
+import kotlin.random.Random
 
 fun buildPlanet(
-    id: Long? = 0,
+    id: Long? = Random.nextLong(),
     name: String = UUID.randomUUID().toString(),
     climate: String = "Tropical",
     terrain: String = "Mountains, deserts, plains, plateaus, and other landforms"
