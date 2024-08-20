@@ -8,6 +8,7 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
@@ -21,6 +22,7 @@ import java.util.*
 import kotlin.random.Random
 
 @ExtendWith(MockKExtension::class)
+@Tag("unit")
 class PlanetServiceUnitTest {
     @MockK
     private lateinit var planetRepository: PlanetRepository

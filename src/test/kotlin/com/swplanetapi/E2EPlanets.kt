@@ -6,6 +6,7 @@ import com.swplanetapi.helper.buildPlanet
 import com.swplanetapi.models.PlanetModel
 import com.swplanetapi.repository.PlanetRepository
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -22,6 +23,7 @@ import kotlin.test.assertTrue
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
+@Tag("e2e")
 class E2EPlanets {
     @Autowired
     private lateinit var restTemplate : TestRestTemplate

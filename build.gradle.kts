@@ -7,7 +7,7 @@ plugins {
 	kotlin("plugin.spring") version "1.9.24"
 	kotlin("plugin.noarg") version "1.9.24"
 	jacoco
-	}
+}
 
 group = "com.carolcursos"
 version = "0.0.1-SNAPSHOT"
@@ -30,7 +30,6 @@ dependencies {
 	implementation("org.hibernate.validator:hibernate-validator:6.2.0.Final")
 	implementation("org.springframework.hateoas:spring-hateoas")
 
-
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 
 	runtimeOnly("com.mysql:mysql-connector-j")
@@ -39,8 +38,10 @@ dependencies {
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testImplementation("io.mockk:mockk:1.13.12")
 	testImplementation("com.h2database:h2")
+	testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.3")
+	testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.3")
 
-	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.9.3")
 }
 
 kotlin {
@@ -50,5 +51,32 @@ kotlin {
 }
 
 tasks.withType<Test> {
-	useJUnitPlatform()
+	useJUnitPlatform {
+		testLogging {
+			events("passed", "skipped", "failed")
+			exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+		}
+	}
+}
+
+tasks.named<Test>("test") {
+	useJUnitPlatform {
+		includeTags("unit", "component", "integration")
+		excludeTags("e2e")
+	}
+}
+
+tasks.register<Test>("e2eTest") {
+	useJUnitPlatform {
+		includeTags("e2e")
+		testLogging {
+			events("passed", "skipped", "failed")
+			exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+		}
+	}
+}
+
+
+tasks.named("check") {
+	dependsOn("e2eTest")
 }

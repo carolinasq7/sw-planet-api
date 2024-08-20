@@ -6,6 +6,7 @@ import com.swplanetapi.service.PlanetService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 
 @SpringBootTest
+@Tag("component")
 class PlanetServiceComponentTest {
     @Autowired
     private lateinit var planetService: PlanetService
