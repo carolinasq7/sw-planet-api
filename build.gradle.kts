@@ -59,24 +59,26 @@ tasks.withType<Test> {
 	}
 }
 
-tasks.named<Test>("test") {
+tasks.register<Test>("unitTest") {
 	useJUnitPlatform {
-		includeTags("unit", "component", "integration")
-		excludeTags("e2e")
+		includeTags = setOf("unit")
+	}
+}
+
+tasks.register<Test>("integrationTest") {
+	useJUnitPlatform {
+		includeTags = setOf("integration")
+	}
+}
+
+tasks.register<Test>("componentTest") {
+	useJUnitPlatform {
+		includeTags = setOf("component")
 	}
 }
 
 tasks.register<Test>("e2eTest") {
 	useJUnitPlatform {
-		includeTags("e2e")
-		testLogging {
-			events("passed", "skipped", "failed")
-			exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
-		}
+		includeTags = setOf("e2e")
 	}
-}
-
-
-tasks.named("check") {
-	dependsOn("e2eTest")
 }
